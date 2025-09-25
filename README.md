@@ -17,6 +17,8 @@ cmd.replace_configuration('PrinterConfiguration', {
     'chartExportCommandLine': f'node  {path_to_print_project}/chart-export.js',
     'dashboardExportCommandLine': f'node {path_to_print_project}/print/dashboard-export.js'
 })
+
+cmd.toggle_feature(feature_name='dashboard-export', is_enabled=True);
 ```
 
 Make sure to restart the KAWA server once this configuration has been set.
