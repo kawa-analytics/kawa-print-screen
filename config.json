@@ -1,0 +1,4 @@
+{
+  "logDirectory": "/tmp/logs",
+  "pathToChrome": "google-chrome"
+}
