@@ -8,7 +8,7 @@ function waitForNetworkIdle(
   {
     timeout = 180000,
     waitForFirstRequest = 1000,
-    waitForLastRequest = 500,
+    waitForLastRequest = 3000,
     maxInflightRequests = 0,
   },
 ) {
@@ -134,8 +134,14 @@ function takeDebugScreenshot(page, count = 1, interval = 0) {
   }
 }
 
+function maskWord(word) {
+  if (word.length <= 7) return word;
+  return word.slice(0, 7) + '*'.repeat(word.length - 6);
+}
+
 module.exports = {
   waitForNetworkIdle,
   takeDebugScreenshot,
   debugConsole,
+  maskWord
 };

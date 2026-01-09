@@ -116,8 +116,10 @@ const takeScreenshots = async () => {
         ? [VIEWPORT_LARGER_SIDE, VIEWPORT_SMALLER_SIDE]
         : [VIEWPORT_SMALLER_SIDE, VIEWPORT_LARGER_SIDE];
 
+    const serverUrl = config.serverUrl || KAWA_SERVER_URL;
     const exportMode = `?mode=export&width=${KAWA_FORMAT_WIDTH}&height=${KAWA_FORMAT_HEIGHT}&fullPage=true`;
-    const url = `${KAWA_SERVER_URL}/workspaces/${KAWA_WORKSPACE_ID}/dashboards/${KAWA_DASHBOARD_ID}${exportMode}`;
+    const url = `${serverUrl}/workspaces/${KAWA_WORKSPACE_ID}/dashboards/${KAWA_DASHBOARD_ID}${exportMode}`;
+
 
     info('Create new page');
     const page = await browser.newPage();
@@ -134,11 +136,19 @@ const takeScreenshots = async () => {
 
     await page.setViewport(viewPortSize);
 
-    await page.setCookie({
-      name: 'X-KAWA-PRINCIPAL-ID',
-      value: KAWA_PRINCIPAL_ID,
-      domain: '127.0.0.1',
-    });
+    const cookies = [
+      {
+        name: 'X-KAWA-PRINCIPAL-ID',
+        value: KAWA_PRINCIPAL_ID,
+        domain: domain,
+      },
+      {
+        name: 'X-KAWA-API-KEY',
+        value: KAWA_API_KEY,
+        domain: domain,
+      },
+    ];
+    await page.setCookie(...cookies);
 
     await page.setRequestInterception(true);
 

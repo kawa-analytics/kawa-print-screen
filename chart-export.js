@@ -4,7 +4,7 @@ const logger = getActiveLogger();
 const config = require('./config.json');
 const puppeteer = require('puppeteer-core');
 const crypto = require('crypto');
-const { waitForNetworkIdle } = require('./utils');
+const { waitForNetworkIdle, maskWord } = require('./utils');
 
 const puppeteerLogger = logger.child({ service: 'chart_export.puppeteer' });
 
@@ -17,7 +17,6 @@ const info = (msg) => puppeteerLogger.info(msg);
 const takeScreenshots = async () => {
   info('Start puppeteer script');
   info('Launch browser');
-
   const browser = await puppeteer.launch({
     headless: 'new',
     executablePath: config.pathToChrome,
@@ -30,9 +29,10 @@ const takeScreenshots = async () => {
   });
 
   try {
-    const { KAWA_PRINCIPAL_ID, KAWA_SERVER_URL, KAWA_WORKSPACE_ID, KAWA_SHEET_ID, KAWA_LAYOUT_ID } =
+    const { KAWA_PRINCIPAL_ID, KAWA_SERVER_URL, KAWA_WORKSPACE_ID, KAWA_SHEET_ID, KAWA_LAYOUT_ID, KAWA_API_KEY } =
       process.env;
 
+    const masked = maskWord(KAWA_API_KEY);
     info(
       `Have these environment variables: ${JSON.stringify({
         KAWA_PRINCIPAL_ID,
@@ -40,10 +40,13 @@ const takeScreenshots = async () => {
         KAWA_WORKSPACE_ID,
         KAWA_SHEET_ID,
         KAWA_LAYOUT_ID,
+        masked,
       })}`,
     );
 
-    const url = `${KAWA_SERVER_URL}/workspaces/${KAWA_WORKSPACE_ID}/sheets/${KAWA_SHEET_ID}/views/${KAWA_LAYOUT_ID}?mode=export`;
+    const serverUrl = config.serverUrl || KAWA_SERVER_URL;
+    const url = `${serverUrl}/workspaces/${KAWA_WORKSPACE_ID}/sheets/${KAWA_SHEET_ID}/views/${KAWA_LAYOUT_ID}?mode=export`;
+    const domain = new URL(url).hostname;
 
     info('Create new page');
     const page = await browser.newPage();
@@ -63,10 +66,14 @@ const takeScreenshots = async () => {
       {
         name: 'X-KAWA-PRINCIPAL-ID',
         value: KAWA_PRINCIPAL_ID,
-        domain: '127.0.0.1',
+        domain: domain,
+      },
+      {
+        name: 'X-KAWA-API-KEY',
+        value: KAWA_API_KEY,
+        domain: domain,
       },
     ];
-
     await page.setCookie(...cookies);
 
     info(`Navigate to url ${url}`);
