@@ -3,6 +3,14 @@
 Install with `npm install`.
 Configuration is available in the `config.json` file.
 
+
+The following parameters are available:
+
+- `logDirectory`: Where the logs file will be inserted
+- `pathToChrome`: Path to executable Chrome
+- `serverUrl`: URL to the server (Optional)
+
+
 In order for KAWA to connect to this script, please use the following:
 
 ```python
